@@ -44,7 +44,9 @@ Apple Developer Programの有効なメンバーシップがあれば，Apple Dev
 
 * `com.apple.QuickTimePlayerX`のオートメーション許可をリクエストする
 
-[QuickTime Player](https://support.apple.com/ja-jp/guide/quicktime-player/welcome/mac)のバンドルIDは`com.apple.QuickTimePlayer`ではない（テン）
+**注記**: [QuickTime Player](https://support.apple.com/ja-jp/guide/quicktime-player/welcome/mac)のバンドルIDは`com.apple.QuickTimePlayer`ではない（`X`（テン）がついている）
+
+macOS 10.14 Catalina SDKのAPI[AEDeterminePermissionToAutomateTarget](https://developer.apple.com/documentation/coreservices/3025784-aedeterminepermissiontoautomatet?language=objc)を呼び出す
 
 ## QuickTime Player Execute
 
