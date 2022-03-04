@@ -11,7 +11,7 @@ macOS Mojave以降，アプリやプログラムがカメラやマイクを使�
 * コード署名*entitlements*の[`com.apple.security.device.camera`](https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_device_camera?language=objc)が`True`であること
 * アプリがAppleの公証にパスしていること
 
-これらの条件を満たしていないソフトウェアはカメラやマイクを使用することができません。
+これらの条件を満たしていないソフトウェアにカメラやマイクの使用を許可することはできません。
 
 4Dはコード署名されており，公証もパスしていますが，カメラやマイクを使用するための*entitlements*や*Info.plist*キーが不足しているため，**カメラやマイクを使用することができません**。
 
@@ -23,6 +23,10 @@ macOS Mojave以降，アプリやプログラムがカメラやマイクを使�
 * アプリが[*Hardened Runtime*](https://developer.apple.com/documentation/security/hardened_runtime?language=objc)オプション付き・セキュアなタイムスタンプ付き・でコード署名されていること
 * コード署名*entitlements*の[`com.apple.security.automation.apple-events`](https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_automation_apple-events?changes=l_2&language=objc)が`True`であること
 * アプリがAppleの公証にパスしていること
+
+これらの条件を満たしていないソフトウェアにオートメーションを許可することはできません。
+
+4Dはコード署名されており，公証もパスしていますが，オートメーションを実行するための*entitlements*や*Info.plist*キーが不足しているため，**AppleScriptで他のアプリをコントロールを使用することができません**。
 
 ## QuickTime Player Execute
 
