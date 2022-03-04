@@ -20,8 +20,9 @@ macOS Mojave以降，アプリやプログラムがカメラやマイクを使�
 4Dから直接カメラやマイクを使用するのではなく，AppleScriptでQuickTime Playerなどのアプリをコントロール（オートメーション）する，という方法もあります。しかし，オートメーションを実行するためには，やはり，システム環境設定の「セキュリティとプライバシー」でアクセスを許可しなければなりません。下記の条件を満たしていることも必要です。
 
 * *Info.plist*に[`NSAppleEventsUsageDescription`](https://developer.apple.com/documentation/bundleresources/information_property_list/nsappleeventsusagedescription)キーが存在すること
+* アプリが[*Hardened Runtime*](https://developer.apple.com/documentation/security/hardened_runtime?language=objc)オプション付き・セキュアなタイムスタンプ付き・でコード署名されていること
 * コード署名*entitlements*の[`com.apple.security.automation.apple-events`](https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_automation_apple-events?changes=l_2&language=objc)が`True`であること
-
+* アプリがAppleの公証にパスしていること
 
 ## QuickTime Player Execute
 
