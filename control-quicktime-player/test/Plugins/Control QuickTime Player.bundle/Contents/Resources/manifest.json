@@ -1,0 +1,11 @@
+{
+    "name": "Control QuickTime Player",
+    "id": 20000,
+    "commands": [
+        {
+            "theme": "Control QuickTime Player",
+            "syntax": "QuickTime Player Execute(&L;&J):J",
+            "threadSafe": true
+        }
+    ]
+}

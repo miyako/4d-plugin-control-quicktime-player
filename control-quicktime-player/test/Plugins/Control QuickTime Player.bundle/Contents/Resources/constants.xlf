@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<xliff version="1.0" xmlns:d4="http://www.4d.com/d4-ns">
+    <header>
+        <note>Control QuickTime Player</note>
+    </header>
+    <group resname="themes">
+        <trans-unit id="" resname="3F15BF4DB41049B6998A1DA0F52629E3" translate="no">
+            <source>QuickTime Player command</source>
+        </trans-unit>
+    </group>
+    <group restype="x-4DK#" d4:groupName="3F15BF4DB41049B6998A1DA0F52629E3">
+        <trans-unit d4:value="1:L" id="3F15BF4DB41049B6998A1DA0F52629E3.1">
+            <source>qtpc new movie recording</source>
+        </trans-unit>
+        <trans-unit d4:value="2:L" id="3F15BF4DB41049B6998A1DA0F52629E3.2">
+            <source>qtpc new audio recording</source>
+        </trans-unit>
+        <trans-unit d4:value="3:L" id="3F15BF4DB41049B6998A1DA0F52629E3.3">
+            <source>qtpc new screen recording</source>
+        </trans-unit>
+        <trans-unit d4:value="4:L" id="3F15BF4DB41049B6998A1DA0F52629E3.4">
+            <source>qtpc play</source>
+        </trans-unit>
+        <trans-unit d4:value="5:L" id="3F15BF4DB41049B6998A1DA0F52629E3.5">
+            <source>qtpc start</source>
+        </trans-unit>
+        <trans-unit d4:value="9:L" id="3F15BF4DB41049B6998A1DA0F52629E3.6">
+            <source>qtpc pause</source>
+        </trans-unit>
+        <trans-unit d4:value="10:L" id="3F15BF4DB41049B6998A1DA0F52629E3.7">
+            <source>qtpc resume</source>
+        </trans-unit>
+        <trans-unit d4:value="11:L" id="3F15BF4DB41049B6998A1DA0F52629E3.8">
+            <source>qtpc stop</source>
+        </trans-unit>
+        <trans-unit d4:value="12:L" id="3F15BF4DB41049B6998A1DA0F52629E3.9">
+            <source>qtpc present</source>
+        </trans-unit>
+        <trans-unit d4:value="13:L" id="3F15BF4DB41049B6998A1DA0F52629E3.10">
+            <source>qtpc open</source>
+        </trans-unit>
+        <trans-unit d4:value="14:L" id="3F15BF4DB41049B6998A1DA0F52629E3.11">
+            <source>qtpc close</source>
+        </trans-unit>
+        <trans-unit d4:value="15:L" id="3F15BF4DB41049B6998A1DA0F52629E3.12">
+            <source>qtpc save</source>
+        </trans-unit>
+        <trans-unit d4:value="16:L" id="3F15BF4DB41049B6998A1DA0F52629E3.13">
+            <source>qtpc quit</source>
+        </trans-unit>
+    </group>
+</xliff>
