@@ -7,8 +7,8 @@ macOS Mojave以降，アプリやプログラムがカメラやマイクを使�
 
 * *Info.plist*に[`NSCameraUsageDescription`](https://developer.apple.com/documentation/bundleresources/information_property_list/nscamerausagedescription?language=objc)キーが存在すること
 * アプリが[*Hardened Runtime*](https://developer.apple.com/documentation/security/hardened_runtime?language=objc)オプション付き・セキュアなタイムスタンプ付き・でコード署名されていること
-* マイクの場合，コード署名*entitlements*の[`com.apple.security.device.audio-input`](https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_device_audio-input?changes=l_2&language=objc)が`True`であること
-* カメラの場合，コード署名*entitlements*の[`com.apple.security.device.camera`](https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_device_camera?language=objc)が`True`であること
+* コード署名*entitlements*の[`com.apple.security.device.audio-input`](https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_device_audio-input?changes=l_2&language=objc)が`True`であること
+* コード署名*entitlements*の[`com.apple.security.device.camera`](https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_device_camera?language=objc)が`True`であること
 * アプリがAppleの公証にパスしていること
 
 これらの条件を満たしていないソフトウェアはカメラやマイクを使用することができません。
