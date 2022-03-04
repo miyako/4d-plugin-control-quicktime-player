@@ -56,6 +56,10 @@ macOS 10.14 Catalina SDKのAPI[AEDeterminePermissionToAutomateTarget](https://de
 
 コード署名*entitlements*の`com.apple.security.automation.apple-events`がなければ即クラッシュする（プライバシー侵害のためGateKeeperによって実行を阻止されたことがコンソースログに記録される）
 
+アクセスを許可するとシステム環境設定の「セキュリティとプライバシー」にアプリが追加される
+
+<img width="668" alt="granted" src="https://user-images.githubusercontent.com/1725068/156722667-d3a2960b-9f48-4d89-ad59-0c34f4c9b60b.png">
+
 ## QuickTime Player Execute
 
 
