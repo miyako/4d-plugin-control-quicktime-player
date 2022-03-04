@@ -48,6 +48,12 @@ Apple Developer Programの有効なメンバーシップがあれば，Apple Dev
 
 macOS 10.14 Catalina SDKのAPI[AEDeterminePermissionToAutomateTarget](https://developer.apple.com/documentation/coreservices/3025784-aedeterminepermissiontoautomatet?language=objc)を呼び出す
 
+こんな感じの画面が表示される
+
+<img width="260" alt="request" src="https://user-images.githubusercontent.com/1725068/156720171-47fc5852-b1fa-403c-8d06-ad8d5717196e.png">
+
+4Dの*Info.plist*に`NSAppleEventsUsageDescription`がなければダメ
+
 ## QuickTime Player Execute
 
 
