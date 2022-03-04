@@ -28,6 +28,8 @@ macOS Mojave以降，アプリやプログラムがカメラやマイクを使�
 
 4Dはコード署名されており，公証もパスしていますが，オートメーションを実行するための*entitlements*や*Info.plist*キーが不足しているため，**AppleScriptで他のアプリをコントロールを使用することができません**。
 
+---
+
 Apple Developer Programの有効なメンバーシップがあれば，Apple Developer ID証明書を発行し，アプリをコード署名また公証することができます。
 
 4Dのサインツール（シェルスクリプト）を利用する例題は[こちら](https://github.com/miyako/4d-utility-sign-app)
