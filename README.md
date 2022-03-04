@@ -28,6 +28,14 @@ macOS Mojave以降，アプリやプログラムがカメラやマイクを使�
 
 4Dはコード署名されており，公証もパスしていますが，オートメーションを実行するための*entitlements*や*Info.plist*キーが不足しているため，**AppleScriptで他のアプリをコントロールを使用することができません**。
 
+Apple Developer Programの有効なメンバーシップがあれば，Apple Developer ID証明書を発行し，アプリをコード署名また公証することができます。
+
+4Dのサインツール（シェルスクリプト）を利用する例題は[こちら](https://github.com/miyako/4d-utility-sign-app)
+
+4Dコードで実行する例題は[こちら](https://github.com/miyako/4d-class-build-application)
+
+アプリを配付するわけではなく，自分のMacで実行するだけであれば，[無料メンバーシップでコード署名する](https://github.com/miyako/4d-plugin-scard-v3/blob/main/with-free-account.md)ことができます。
+
 ## QuickTime Player Execute
 
 
