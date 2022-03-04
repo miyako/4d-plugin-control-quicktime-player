@@ -14,6 +14,8 @@
 #include "4DPluginAPI.h"
 #include "4DPlugin-Control-QuickTime-Player.h"
 #include "4DPlugin-JSON.h"
+#import <objc/runtime.h>
+#import <AppKit/AppKit.h>
 
 #pragma mark -
 

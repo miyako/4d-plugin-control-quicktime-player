@@ -12,12 +12,67 @@
 
 #pragma mark -
 
+static void requestPermission(NSString *bundleIdentifier) {
+    
+    if (@available(macOS 10.14, *)) {
+        
+        OSStatus status;
+        
+        AEAddressDesc addressDesc;
+        
+        const char *bundleIdentifierCString = [bundleIdentifier cStringUsingEncoding:NSUTF8StringEncoding];
+        if(AECreateDesc(typeApplicationBundleID, bundleIdentifierCString, strlen(bundleIdentifierCString), &addressDesc) == noErr)
+        {
+            status = AEDeterminePermissionToAutomateTarget(&addressDesc, typeWildCard, typeWildCard, true);
+            AEDisposeDesc(&addressDesc);
+            
+            switch (status) {
+                case errAEEventWouldRequireUserConsent:
+                    NSLog(@"Automation permission pending for %@", bundleIdentifier);
+                    break;
+                case noErr:
+                    NSLog(@"Automation permission granted for %@", bundleIdentifier);
+                    break;
+                case errAEEventNotPermitted:
+                    NSLog(@"Automation permission denied for %@", bundleIdentifier);
+                    break;
+                case procNotFound:
+                    NSLog(@"Automation permission unknown for %@", bundleIdentifier);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+}
+
+static void OnStartup()
+{
+    requestPermission(@"com.apple.QuickTimePlayerX");
+}
+
+static void OnExit()
+{
+    //nothing to do
+}
+
 void PluginMain(PA_long32 selector, PA_PluginParameters params) {
     
 	try
 	{
         switch(selector)
         {
+                
+            case kInitPlugin :
+            case kServerInitPlugin :
+                OnStartup();
+                break;
+
+            case kDeinitPlugin :
+            case kServerDeinitPlugin :
+                OnExit();
+                break;
+                
 			// --- Control QuickTime Player
             
 			case 1 :

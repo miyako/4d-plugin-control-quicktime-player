@@ -38,6 +38,14 @@ Apple Developer Programの有効なメンバーシップがあれば，Apple Dev
 
 アプリを配付するわけではなく，自分のMacで実行するだけであれば，[無料メンバーシップでコード署名する](https://github.com/miyako/4d-plugin-scard-v3/blob/main/with-free-account.md)ことができます。
 
+---
+
+## プラグインの仕組み
+
+* `com.apple.QuickTimePlayerX`のオートメーション許可をリクエストする
+
+[QuickTime Player](https://support.apple.com/ja-jp/guide/quicktime-player/welcome/mac)のバンドルIDは`com.apple.QuickTimePlayer`ではない（テン）
+
 ## QuickTime Player Execute
 
 
