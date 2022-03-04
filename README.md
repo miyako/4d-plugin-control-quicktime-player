@@ -52,7 +52,7 @@ macOS 10.14 Catalina SDKのAPI[AEDeterminePermissionToAutomateTarget](https://de
 
 <img width="260" alt="request" src="https://user-images.githubusercontent.com/1725068/156720171-47fc5852-b1fa-403c-8d06-ad8d5717196e.png">
 
-4Dの*Info.plist*に`NSAppleEventsUsageDescription`がなければダメ
+4Dの*Info.plist*に`NSAppleEventsUsageDescription`がなければ即クラッシュ（プライバシー侵害のためGateKeeperによって実行を阻止されたことがコンソースログに記録される）
 
 ## QuickTime Player Execute
 
