@@ -54,7 +54,7 @@ macOS 10.14 Catalina SDKのAPI[AEDeterminePermissionToAutomateTarget](https://de
 
 4Dの*Info.plist*に`NSAppleEventsUsageDescription`がなければ画面は表示されない
 
-コード署名*entitlements*の[`com.apple.security.automation.apple-events`がなければ即クラッシュする（プライバシー侵害のためGateKeeperによって実行を阻止されたことがコンソースログに記録される）
+コード署名*entitlements*の`com.apple.security.automation.apple-events`がなければ即クラッシュする（プライバシー侵害のためGateKeeperによって実行を阻止されたことがコンソースログに記録される）
 
 ## QuickTime Player Execute
 
