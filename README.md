@@ -58,7 +58,7 @@ Apple Developer Programの有効なメンバーシップがあれば，Apple Dev
 
 こちらも参考になるかもしれません。
 
-https://miyako.github.io/2019/06/17/notarization.html
+https://miyako.github.io/2019/06/17/notarization.html  
 https://miyako.github.io/2019/10/16/notarization.html
 
 ## プラグインの仕組み
