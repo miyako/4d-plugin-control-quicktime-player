@@ -68,8 +68,15 @@ macOS 10.14 Catalina SDKのAPI[AEDeterminePermissionToAutomateTarget](https://de
 
 **注記**: Appleのバグ?`applicationWithBundleIdentifier:`を繰り返し呼び出すとクラッシュする。内部的に`NSString*`が`Release`されているのかもしれない。回避策は`applicationWithProcessIdentifier:`
 
-## QuickTime Player Execute
+## サポートツール
 
+前述した理由により，4D.comからダウンロードしたアプリでプラグインを使用することはできません。
+
+*NSAppleEventsUsageDescription is missing in app info.plist*というエラーメッセージが返されるはずです。
+
+<img width="883" alt="error" src="https://user-images.githubusercontent.com/1725068/156871715-59c5ccda-b58c-4270-99b0-c16f75e505f9.png">
+
+## QuickTime Player Execute
 
 ```4d
 status:=QuickTime Player Execute(command;options)
