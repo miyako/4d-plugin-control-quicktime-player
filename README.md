@@ -93,6 +93,8 @@ macOS 10.14 Catalina SDKのAPI[AEDeterminePermissionToAutomateTarget](https://de
 
 <img width="883" alt="error" src="https://user-images.githubusercontent.com/1725068/156871715-59c5ccda-b58c-4270-99b0-c16f75e505f9.png">
 
+署名せずに`osascript`を使用する例題は[こちら](https://github.com/miyako/4d-plugin-control-quicktime-player)
+
 ## QuickTime Player Execute
 
 ```4d
