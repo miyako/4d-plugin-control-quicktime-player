@@ -89,7 +89,6 @@ status:=QuickTime Player Execute(command;options)
 
 * new movie recording
 * new audio recording
-* new screen recording
 * play - 再生を開始
 * start - 録画を開始
 * stop - 再生を停止（録画には無効）
