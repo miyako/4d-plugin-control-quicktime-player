@@ -86,14 +86,13 @@ status:=QuickTime Player Execute(command;options)
 * new movie recording
 * new audio recording
 * new screen recording
-* play
-* start
-* pause
-* resume
-* stop
-* present
-* open
-* close
-* save
-* quit
-
+* play - 再生を開始
+* start - 録画を開始
+* stop - 再生を停止（録画には無効）
+* pause - 再生を停止（録画には無効）
+* resume - playと同じ
+* present - 全画面モードに移行
+* open - ファイルを開く（すでに開いていれば何もしない）
+* close - saveと同じ
+* save - 録画を終了〜ファイルに保存〜閉じる
+* quit - アプリケーションを終了
