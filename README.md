@@ -79,7 +79,11 @@ status:=QuickTime Player Execute(command;options)
 |-|-|-|
 |command|Integer||
 |options|Object||
+|options.name|Object||
+|options.path|Text|open save close|
 |status|Object||
+|status.name|Text|new movie recording|
+|status.names|Collection of Text|open|
 
 ### command
 
