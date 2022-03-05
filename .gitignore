@@ -1,2 +1,3 @@
 *.DS_Store
 control-quicktime-player/build*
+control-quicktime-player/test/userPreferences.*

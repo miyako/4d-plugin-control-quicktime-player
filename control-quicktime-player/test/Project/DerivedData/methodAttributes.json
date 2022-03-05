@@ -1,13 +1,23 @@
 {
 	"methods": {
+		"TEST_play": {
+			"timeStamp": "2022-03-05T06:23:40.622Z"
+		},
 		"TEST_sign_altool": {
 			"timeStamp": "2022-03-04T02:13:31.912Z"
 		},
 		"TEST": {
-			"timeStamp": "2022-03-04T01:07:14.194Z"
+			"timeStamp": "2022-03-05T06:20:39.740Z"
 		},
 		"TEST_sign_notarytool": {
 			"timeStamp": "2022-03-04T02:13:36.035Z"
+		},
+		"escape_param": {
+			"timeStamp": "2021-11-27T14:11:32.630Z",
+			"attributes": {
+				"invisible": true,
+				"preemptive": "capable"
+			}
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <xliff version="1.0" xmlns:d4="http://www.4d.com/d4-ns">
     <header>
         <note>Control QuickTime Player</note>
@@ -14,9 +14,6 @@
         </trans-unit>
         <trans-unit d4:value="2:L" id="3F15BF4DB41049B6998A1DA0F52629E3.2">
             <source>qtpc new audio recording</source>
-        </trans-unit>
-        <trans-unit d4:value="3:L" id="3F15BF4DB41049B6998A1DA0F52629E3.3">
-            <source>qtpc new screen recording</source>
         </trans-unit>
         <trans-unit d4:value="4:L" id="3F15BF4DB41049B6998A1DA0F52629E3.4">
             <source>qtpc play</source>

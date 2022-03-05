@@ -96,10 +96,10 @@
 		"height": 762
 	},
 	"Sources/Methods/TEST.4dm": {
-		"left": 202,
-		"top": 663,
-		"width": 877,
-		"height": 609
+		"left": 466,
+		"top": 550,
+		"width": 1026,
+		"height": 604
 	},
 	"Sources/Methods/TEST_v17.4dm": {
 		"left": 450,
@@ -172,5 +172,17 @@
 		"top": 365,
 		"width": 877,
 		"height": 637
+	},
+	"Sources/Methods/TEST_play.4dm": {
+		"left": 466,
+		"top": 550,
+		"width": 1026,
+		"height": 604
+	},
+	"Sources/Classes/SignApp.4dm": {
+		"left": 466,
+		"top": 522,
+		"width": 1026,
+		"height": 632
 	}
 }

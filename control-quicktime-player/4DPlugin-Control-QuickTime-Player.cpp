@@ -12,9 +12,53 @@
 
 #pragma mark -
 
-static void requestPermission(NSString *bundleIdentifier) {
+bool request_permission_granted = false;
+
+static void quitInstances(NSString *bundleIdentifier) {
+
+    NSArray<NSRunningApplication *> *applications = [NSRunningApplication runningApplicationsWithBundleIdentifier:bundleIdentifier];
+    
+    for (NSRunningApplication *application in applications) {
+        
+        [application terminate];
+    }
+}
+
+static void launchApplication(NSString *bundleIdentifier) {
+    
+    NSURL *url = [[NSWorkspace sharedWorkspace]URLForApplicationWithBundleIdentifier:bundleIdentifier];
+    if(url){
+        [[NSWorkspace sharedWorkspace]launchAppWithBundleIdentifier:bundleIdentifier
+                                                            options:NSWorkspaceLaunchWithoutActivation|NSWorkspaceLaunchWithoutAddingToRecents
+                                     additionalEventParamDescriptor:[NSAppleEventDescriptor nullDescriptor]
+                                                   launchIdentifier:nil];
+    }
+}
+
+static QuickTimePlayerApplication *getInstance(NSString *bundleIdentifier) {
+
+    launchApplication(bundleIdentifier);
+    
+    NSArray<NSRunningApplication *> *applications = [NSRunningApplication runningApplicationsWithBundleIdentifier:bundleIdentifier];
+
+    if([applications count] == 1) {
+        
+        pid_t processIdentifier = [[applications objectAtIndex:0]processIdentifier];
+        
+        QuickTimePlayerApplication *application = [SBApplication applicationWithProcessIdentifier:processIdentifier];
+        if(application) {
+            return application;
+        }
+    }
+    
+    return nil;
+}
+
+static request_permission_t requestPermission(NSString *bundleIdentifier) {
     
     if (@available(macOS 10.14, *)) {
+        
+        launchApplication(bundleIdentifier);
         
         OSStatus status;
         
@@ -29,14 +73,20 @@ static void requestPermission(NSString *bundleIdentifier) {
             switch (status) {
                 case errAEEventWouldRequireUserConsent:
                     NSLog(@"Automation permission pending for %@", bundleIdentifier);
+                    return request_permission_not_determined;
                     break;
                 case noErr:
                     NSLog(@"Automation permission granted for %@", bundleIdentifier);
+                    request_permission_granted = true;
+                    return request_permission_authorized;
                     break;
                 case errAEEventNotPermitted:
                     NSLog(@"Automation permission denied for %@", bundleIdentifier);
+                    request_permission_granted = false;
+                    return request_permission_denied;
                     break;
                 case procNotFound:
+                    //happens when app is not running
                     NSLog(@"Automation permission unknown for %@", bundleIdentifier);
                     break;
                 default:
@@ -44,16 +94,84 @@ static void requestPermission(NSString *bundleIdentifier) {
             }
         }
     }
+    return request_permission_unknown;
 }
 
-static void OnStartup()
-{
-    requestPermission(@"com.apple.QuickTimePlayerX");
-}
-
-static void OnExit()
-{
-    //nothing to do
+static void requestPermission(PA_ObjectRef status) {
+    
+    if(!request_permission_granted) {
+#if VERSIONMAC
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    if(mainBundle) {
+      NSDictionary *infoDictionary = [mainBundle infoDictionary];
+        if(infoDictionary) {
+            NSString *appleEventsUsageDescription = [infoDictionary objectForKey:@"NSAppleEventsUsageDescription"];
+            if(appleEventsUsageDescription) {
+    
+                SecTaskRef sec = SecTaskCreateFromSelf(kCFAllocatorMalloc);
+                CFErrorRef err = nil;
+                CFBooleanRef boolValue = (CFBooleanRef)SecTaskCopyValueForEntitlement(
+                                                                                      SecTaskCreateFromSelf(NULL), CFSTR("com.apple.security.automation.apple-events"), &err);
+                if(!err) {
+                    if(boolValue) {
+                        if(CFBooleanGetValue(boolValue)) {
+                            request_permission_t permission = requestPermission(@"com.apple.QuickTimePlayerX");
+                            switch (permission) {
+                                case request_permission_authorized:
+                                    ob_set_b(status, L"success", true);
+                                    break;
+                                    
+                                case request_permission_denied:
+                                    ob_set_b(status, L"success", false);
+                                    ob_set_s(status, L"errorMessage", "permission denied");
+                                    break;
+                                    
+                                case request_permission_restricted:
+                                    ob_set_b(status, L"success", false);
+                                    ob_set_s(status, L"errorMessage", "permission restricted");
+                                    break;
+                                
+                                case request_permission_not_determined:
+                                    ob_set_b(status, L"success", false);
+                                    ob_set_s(status, L"errorMessage", "permission not determined");
+                                    break;
+                                    
+                                default:
+                                    break;
+                            }
+                        }
+                        
+                        if(request_permission_granted) {
+                            ob_set_b(status, L"success", true);
+                        }
+                        
+                        CFRelease(boolValue);
+                    }else{
+                        ob_set_b(status, L"success", false);
+                        ob_set_s(status, L"errorMessage", "com.apple.security.automation.apple-events is set to false in app entitlement");
+                    }
+                    
+                }else{
+                    ob_set_b(status, L"success", false);
+                    ob_set_s(status, L"errorMessage", "com.apple.security.automation.apple-events is missing in app entitlement");
+                }
+                
+                CFRelease(sec);
+  
+            }else{
+                ob_set_b(status, L"success", false);
+                ob_set_s(status, L"errorMessage", "NSAppleEventsUsageDescription is missing in app info.plist");
+            }
+        }else{
+            ob_set_b(status, L"success", false);
+            ob_set_s(status, L"errorMessage", "failed to locate [mainBundle infoDictionary]");
+        }
+    }else{
+        ob_set_b(status, L"success", false);
+        ob_set_s(status, L"errorMessage", "failed to locate [NSBundle mainBundle]");
+    }
+#endif
+    }
 }
 
 void PluginMain(PA_long32 selector, PA_PluginParameters params) {
@@ -62,17 +180,6 @@ void PluginMain(PA_long32 selector, PA_PluginParameters params) {
 	{
         switch(selector)
         {
-                
-            case kInitPlugin :
-            case kServerInitPlugin :
-                OnStartup();
-                break;
-
-            case kDeinitPlugin :
-            case kServerDeinitPlugin :
-                OnExit();
-                break;
-                
 			// --- Control QuickTime Player
             
 			case 1 :
@@ -90,7 +197,324 @@ void PluginMain(PA_long32 selector, PA_PluginParameters params) {
 
 #pragma mark -
 
-void QuickTime_Player_Execute(PA_PluginParameters params) {
+static void get_document_properties(QuickTimePlayerDocument *document, PA_ObjectRef status) {
+ 
+    if(status) {
+        ob_set_s(status, "name", [document.name UTF8String]);
+        
+        ob_set_b(status, L"success", true);
+    }
 
 }
 
+#pragma mark -
+
+static bool reset_status(PA_ObjectRef options, PA_ObjectRef status) {
+    
+    if(status) {
+        ob_set_b(status, L"success", false);
+        return true;
+    }
+    
+    return false;
+}
+
+#pragma mark -
+
+static void new_movie_recording(PA_ObjectRef options, PA_ObjectRef status) {
+
+    if(reset_status(options, status)) {
+        
+        if(options) {
+            
+            QuickTimePlayerApplication *application = getInstance(@"com.apple.QuickTimePlayerX");
+            
+            if(application)
+            {
+                [application retain];
+                QuickTimePlayerDocument *document = [application newMovieRecording];
+                if(document) {
+                    get_document_properties(document, status);
+                }
+            }
+        }
+    }
+}
+
+static void new_audio_recording(PA_ObjectRef options, PA_ObjectRef status) {
+
+    if(reset_status(options, status)) {
+        
+        if(options) {
+            
+            QuickTimePlayerApplication *application = getInstance(@"com.apple.QuickTimePlayerX");
+            
+            if(application)
+            {
+                [application retain];
+                QuickTimePlayerDocument *document = [application newAudioRecording];
+                if(document) {
+                    get_document_properties(document, status);
+                }
+            }
+        }
+    }
+}
+
+static void new_screen_recording(PA_ObjectRef options, PA_ObjectRef status) {
+
+    reset_status(options, status);
+    
+}
+
+static void invoke(PA_ObjectRef options, PA_ObjectRef status, NSString *command) {
+    
+    if(status) {
+        ob_set_b(status, L"success", false);
+        if(options) {
+            if(ob_is_defined(options, L"name")) {
+                
+                CUTF8String stringValue;
+                if(ob_get_s(options, L"name", &stringValue)){
+                    std::string name((const char *)stringValue.c_str());
+                    
+                    QuickTimePlayerApplication *application = getInstance(@"com.apple.QuickTimePlayerX");
+                    
+                    if(application)
+                    {
+                        SBElementArray<QuickTimePlayerDocument *>*documents =  [application documents];
+                        NSString *documentName = [NSString stringWithUTF8String:name.c_str()];
+                        QuickTimePlayerDocument *document = [[documents objectWithName:documentName]get];
+                        if(document) {
+                            
+                            if([command isEqualToString:@"stop"]) {
+                                if(!document.playing) {
+                                    return;
+                                }
+                            }
+                            
+                            [document performSelector:NSSelectorFromString(command)];
+                            ob_set_b(status, L"success", true);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+    
+static void start(PA_ObjectRef options, PA_ObjectRef status) {
+
+    invoke(options, status, @"start");
+    
+}
+
+#pragma mark PLAY
+
+static void play(PA_ObjectRef options, PA_ObjectRef status) {
+
+    invoke(options, status, @"play");
+    
+}
+
+static void pause(PA_ObjectRef options, PA_ObjectRef status) {
+
+    invoke(options, status, @"pause");
+    
+}
+
+static void resume(PA_ObjectRef options, PA_ObjectRef status) {
+
+    invoke(options, status, @"play");//resume is not working
+    
+}
+
+static void stop(PA_ObjectRef options, PA_ObjectRef status) {
+
+    invoke(options, status, @"stop");//stop during record not working
+
+}
+
+static void present(PA_ObjectRef options, PA_ObjectRef status) {
+
+    invoke(options, status, @"present");
+    
+}
+
+static void getDocuments(QuickTimePlayerApplication *application, PA_ObjectRef status) {
+    
+    SBElementArray<QuickTimePlayerDocument *>*documents =  [application documents];
+    
+    PA_CollectionRef col = PA_CreateCollection();
+    
+    for(QuickTimePlayerDocument *document in documents) {
+        
+        PA_Variable v = PA_CreateVariable(eVK_Unistring);
+        
+        NSString *str = document.name;
+        if(str) {
+            int32_t len = (int32_t)[str length];
+            uint32_t size = (len * sizeof(PA_Unichar)) + sizeof(PA_Unichar);
+            std::vector<uint8_t> buf(size);
+            
+            if([str getCString:(char *)&buf[0] maxLength:size encoding:NSUnicodeStringEncoding]){
+                PA_Unistring u = PA_CreateUnistring((PA_Unichar *)&buf[0]);
+                PA_SetStringVariable(&v, &u);
+                PA_SetCollectionElement(col, PA_GetCollectionLength(col), v);
+                PA_ClearVariable(&v);
+            }
+        }
+    }
+    
+    ob_set_c(status, L"names", col);
+    ob_set_b(status, L"success", true);
+}
+
+static void open(PA_ObjectRef options, PA_ObjectRef status) {
+
+    if(status) {
+        ob_set_b(status, L"success", false);
+        if(options) {
+            CUTF8String stringValue;
+            if(ob_get_s(options, L"path", &stringValue)){
+                NSString *path = [[NSString alloc]initWithUTF8String:(const char *)stringValue.c_str()];
+                NSURL *url = (NSURL *)CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)path, kCFURLHFSPathStyle, false);
+                if(url) {
+                    
+                    QuickTimePlayerApplication *application = getInstance(@"com.apple.QuickTimePlayerX");
+                    
+                    if(application)
+                    {
+                        [application openURL:[url absoluteString]];
+                        
+                        getDocuments(application, status);
+
+                    }
+                    [ url release];
+                }
+            }
+        }
+    }
+}
+
+static void quit(PA_ObjectRef options, PA_ObjectRef status) {
+    
+    if(reset_status(options, status)) {
+        quitInstances(@"com.apple.QuickTimePlayerX");
+        ob_set_b(status, L"success", true);
+    }
+ 
+}
+
+static void save(PA_ObjectRef options, PA_ObjectRef status) {
+
+    if(status) {
+        ob_set_b(status, L"success", false);
+        if(options) {
+            CUTF8String stringValue;
+            if(ob_get_s(options, L"name", &stringValue)){
+                std::string name((const char *)stringValue.c_str());
+                
+                QuickTimePlayerApplication *application = getInstance(@"com.apple.QuickTimePlayerX");
+                
+                if(application)
+                {
+                    SBElementArray<QuickTimePlayerDocument *>*documents =  [application documents];
+                    NSString *documentName = [NSString stringWithUTF8String:name.c_str()];
+                    QuickTimePlayerDocument *document = [[documents objectWithName:documentName]get];
+                    
+                    if(document) {
+                        
+                        if(ob_get_s(options, L"path", &stringValue)){
+                            NSString *path = [[NSString alloc]initWithUTF8String:(const char *)stringValue.c_str()];
+                            NSURL *url = (NSURL *)CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)path, kCFURLHFSPathStyle, false);
+                            if(url) {
+                                                                
+                                [document closeSaving:QuickTimePlayerSaveOptionsYes savingIn:url];
+                                ob_set_b(status, L"success", true);
+
+                                [url release];
+                            }
+                            [path release];
+                        }else{
+                            [document closeSaving:QuickTimePlayerSaveOptionsNo savingIn:nil];
+                        }
+                        
+                    }
+                }
+            }
+        }
+    }
+}
+
+static void QuickTime_Player_Execute(PA_PluginParameters params) {
+
+    quicktime_player_command_t command = (quicktime_player_command_t)PA_GetLongParameter(params, 1);
+    PA_ObjectRef options = PA_GetObjectParameter(params, 2);
+    PA_ObjectRef status = PA_CreateObject();
+    
+    requestPermission(status);
+    
+    if (request_permission_granted) {
+
+        switch (command) {
+                
+            case qtpc_new_movie_recording:
+                new_movie_recording(options, status);
+                break;
+                
+            case qtpc_new_audio_recording:
+                new_audio_recording(options, status);
+                break;
+                
+            case qtpc_new_screen_recording:
+                new_screen_recording(options, status);
+                break;
+
+            case qtpc_play:
+                play(options, status);
+                break;
+                
+            case qtpc_start:
+                start(options, status);
+                break;
+
+            case qtpc_pause:
+                pause(options, status);
+                break;
+
+            case qtpc_resume:
+                resume(options, status);
+                break;
+
+            case qtpc_stop:
+                stop(options, status);
+                break;
+                
+            case qtpc_present:
+                present(options, status);
+                break;
+                
+            case qtpc_open:
+                open(options, status);
+                break;
+                
+            case qtpc_close:
+                save(options, status);
+                break;
+                
+            case qtpc_save:
+                save(options, status);
+                break;
+                
+            case qtpc_quit:
+                quit(options, status);
+                break;
+                
+            default:
+                break;
+        }
+    }
+
+    PA_ReturnObject(params, status);
+}
