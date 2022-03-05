@@ -64,6 +64,10 @@ macOS 10.14 Catalina SDKのAPI[AEDeterminePermissionToAutomateTarget](https://de
 
 <img width="668" alt="granted" src="https://user-images.githubusercontent.com/1725068/156722667-d3a2960b-9f48-4d89-ad59-0c34f4c9b60b.png">
 
+* [`applicationWithBundleIdentifier:`](https://developer.apple.com/documentation/scriptingbridge/sbapplication/1588086-applicationwithbundleidentifier?language=objc)でスクリプティングのハンドルを取得
+
+**注記**: Appleのバグ?[SBApplication applicationWithBundleIdentifier:bundleIdentifier]を複数のスレッドから呼び出すとクラッシュする。回避策は`applicationWithProcessIdentifier:`
+
 ## QuickTime Player Execute
 
 
