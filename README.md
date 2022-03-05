@@ -44,6 +44,23 @@ Apple Developer Programの有効なメンバーシップがあれば，Apple Dev
 
 アプリを配付するわけではなく，自分のMacで実行するだけであれば，[無料メンバーシップでコード署名する](https://github.com/miyako/4d-plugin-scard-v3/blob/main/with-free-account.md)ことができます。
 
+サンプルコードにはコード署名の手続きを自動化するメソッド（`TEST_sign_notarytool`および旧バージョン用の`TEST_sign_altool`）が収録されています。
+
+* Apple ID
+* App用パスワード
+* 2ファクター認証
+* XCode
+*キーチェーンプロフィール
+
+など，所定の条件が満たされていれば，4Dのコード署名を強化し，プラグインが実行できるようになります。
+
+各項目の詳細はqiitaなどで調べてください。
+
+こちらも参考になるかもしれません。
+
+https://miyako.github.io/2019/06/17/notarization.html
+https://miyako.github.io/2019/10/16/notarization.html
+
 ## プラグインの仕組み
 
 * `com.apple.QuickTimePlayerX`のオートメーション許可をリクエストする
