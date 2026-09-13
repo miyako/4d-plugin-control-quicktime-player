@@ -111,7 +111,7 @@ static void requestPermission(PA_ObjectRef status) {
                 SecTaskRef sec = SecTaskCreateFromSelf(kCFAllocatorMalloc);
                 CFErrorRef err = nil;
                 CFBooleanRef boolValue = (CFBooleanRef)SecTaskCopyValueForEntitlement(
-                                                                                      SecTaskCreateFromSelf(NULL), CFSTR("com.apple.security.automation.apple-events"), &err);
+                                                                                      sec, CFSTR("com.apple.security.automation.apple-events"), &err);
                 if(!err) {
                     if(boolValue) {
                         if(CFBooleanGetValue(boolValue)) {
@@ -154,6 +154,7 @@ static void requestPermission(PA_ObjectRef status) {
                 }else{
                     ob_set_b(status, L"success", false);
                     ob_set_s(status, L"errorMessage", "com.apple.security.automation.apple-events is missing in app entitlement");
+                    CFRelease(err);
                 }
                 
                 CFRelease(sec);
@@ -231,7 +232,6 @@ static void new_movie_recording(PA_ObjectRef options, PA_ObjectRef status) {
             
             if(application)
             {
-                [application retain];
                 QuickTimePlayerDocument *document = [application newMovieRecording];
                 if(document) {
                     get_document_properties(document, status);
@@ -251,7 +251,6 @@ static void new_audio_recording(PA_ObjectRef options, PA_ObjectRef status) {
             
             if(application)
             {
-                [application retain];
                 QuickTimePlayerDocument *document = [application newAudioRecording];
                 if(document) {
                     get_document_properties(document, status);
@@ -361,9 +360,9 @@ static void getDocuments(QuickTimePlayerApplication *application, PA_ObjectRef s
                 PA_Unistring u = PA_CreateUnistring((PA_Unichar *)&buf[0]);
                 PA_SetStringVariable(&v, &u);
                 PA_SetCollectionElement(col, PA_GetCollectionLength(col), v);
-                PA_ClearVariable(&v);
             }
         }
+        PA_ClearVariable(&v);
     }
     
     ob_set_c(status, L"names", col);
@@ -392,6 +391,7 @@ static void open(PA_ObjectRef options, PA_ObjectRef status) {
                     }
                     [ url release];
                 }
+                [path release];
             }
         }
     }
@@ -457,62 +457,73 @@ static void QuickTime_Player_Execute(PA_PluginParameters params) {
     
     if (request_permission_granted) {
 
-        switch (command) {
-                
-            case qtpc_new_movie_recording:
-                new_movie_recording(options, status);
-                break;
-                
-            case qtpc_new_audio_recording:
-                new_audio_recording(options, status);
-                break;
-                
-            case qtpc_new_screen_recording:
-                new_screen_recording(options, status);
-                break;
+        try {
+            switch (command) {
+                    
+                case qtpc_new_movie_recording:
+                    new_movie_recording(options, status);
+                    break;
+                    
+                case qtpc_new_audio_recording:
+                    new_audio_recording(options, status);
+                    break;
+                    
+                case qtpc_new_screen_recording:
+                    new_screen_recording(options, status);
+                    break;
 
-            case qtpc_play:
-                play(options, status);
-                break;
-                
-            case qtpc_start:
-                start(options, status);
-                break;
+                case qtpc_play:
+                    play(options, status);
+                    break;
+                    
+                case qtpc_start:
+                    start(options, status);
+                    break;
 
-            case qtpc_pause:
-                pause(options, status);
-                break;
+                case qtpc_pause:
+                    pause(options, status);
+                    break;
 
-            case qtpc_resume:
-                resume(options, status);
-                break;
+                case qtpc_resume:
+                    resume(options, status);
+                    break;
 
-            case qtpc_stop:
-                stop(options, status);
-                break;
-                
-            case qtpc_present:
-                present(options, status);
-                break;
-                
-            case qtpc_open:
-                open(options, status);
-                break;
-                
-            case qtpc_close:
-                save(options, status);
-                break;
-                
-            case qtpc_save:
-                save(options, status);
-                break;
-                
-            case qtpc_quit:
-                quit(options, status);
-                break;
-                
-            default:
-                break;
+                case qtpc_stop:
+                    stop(options, status);
+                    break;
+                    
+                case qtpc_present:
+                    present(options, status);
+                    break;
+                    
+                case qtpc_open:
+                    open(options, status);
+                    break;
+                    
+                case qtpc_close:
+                    save(options, status);
+                    break;
+                    
+                case qtpc_save:
+                    save(options, status);
+                    break;
+                    
+                case qtpc_quit:
+                    quit(options, status);
+                    break;
+                    
+                default:
+                    break;
+            }
+        }
+        catch(...) {
+            // Ensure 4D always gets a return value even if a command handler throws
+            // (e.g. a ScriptingBridge/AppleEvent failure from performSelector: in invoke()).
+            // Without this, the exception would unwind past PA_ReturnObject below and
+            // be swallowed by PluginMain's outer catch(...), leaving the 4D host
+            // waiting indefinitely for a return that would never come.
+            ob_set_b(status, L"success", false);
+            ob_set_s(status, L"errorMessage", "an internal error occurred while executing the command");
         }
     }
 

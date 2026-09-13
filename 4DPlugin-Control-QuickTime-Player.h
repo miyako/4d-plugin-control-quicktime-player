@@ -12,7 +12,6 @@
 #define PLUGIN_CONTROL_QUICKTIME_PLAYER_H
 
 #include "4DPluginAPI.h"
-#include "4DPlugin-Control-QuickTime-Player.h"
 #include "4DPlugin-JSON.h"
 
 #import <AppKit/AppKit.h>
