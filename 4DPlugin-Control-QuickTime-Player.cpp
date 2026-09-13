@@ -274,7 +274,7 @@ static void invoke(PA_ObjectRef options, PA_ObjectRef status, NSString *command)
             if(ob_is_defined(options, L"name")) {
                 
                 CUTF8String stringValue;
-                if(ob_get_s(options, L"name", &stringValue)){
+                if(ob_get_a(options, L"name", &stringValue)){
                     std::string name((const char *)stringValue.c_str());
                     
                     QuickTimePlayerApplication *application = getInstance(@"com.apple.QuickTimePlayerX");
@@ -375,7 +375,7 @@ static void open(PA_ObjectRef options, PA_ObjectRef status) {
         ob_set_b(status, L"success", false);
         if(options) {
             CUTF8String stringValue;
-            if(ob_get_s(options, L"path", &stringValue)){
+            if(ob_get_a(options, L"path", &stringValue)){
                 NSString *path = [[NSString alloc]initWithUTF8String:(const char *)stringValue.c_str()];
                 NSURL *url = (NSURL *)CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)path, kCFURLHFSPathStyle, false);
                 if(url) {
@@ -412,7 +412,7 @@ static void save(PA_ObjectRef options, PA_ObjectRef status) {
         ob_set_b(status, L"success", false);
         if(options) {
             CUTF8String stringValue;
-            if(ob_get_s(options, L"name", &stringValue)){
+            if(ob_get_a(options, L"name", &stringValue)){
                 std::string name((const char *)stringValue.c_str());
                 
                 QuickTimePlayerApplication *application = getInstance(@"com.apple.QuickTimePlayerX");
@@ -425,7 +425,7 @@ static void save(PA_ObjectRef options, PA_ObjectRef status) {
                     
                     if(document) {
                         
-                        if(ob_get_s(options, L"path", &stringValue)){
+                        if(ob_get_a(options, L"path", &stringValue)){
                             NSString *path = [[NSString alloc]initWithUTF8String:(const char *)stringValue.c_str()];
                             NSURL *url = (NSURL *)CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)path, kCFURLHFSPathStyle, false);
                             if(url) {
