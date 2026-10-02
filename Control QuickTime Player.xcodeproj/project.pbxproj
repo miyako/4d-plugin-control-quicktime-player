@@ -23,6 +23,7 @@
 		D1A7854F27D1FD5C0091BC50 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1A7854E27D1FD5C0091BC50 /* Security.framework */; };
 		D1A7855127D206EB0091BC50 /* QuickTimePlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = D1A7855027D206EB0091BC50 /* QuickTimePlayer.h */; };
 		D1A7855327D209840091BC50 /* ScriptingBridge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1A7855227D209840091BC50 /* ScriptingBridge.framework */; };
+		888CE410B06391BD8EB7708D /* constants.xlf in CopyFiles */ = {isa = PBXBuildFile; fileRef = D14D10DD1A03A8A5008B3411 /* constants.xlf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,6 +34,7 @@
 			dstSubfolderSpec = 7;
 			files = (
 				D134D4AC1A030BA0008D14EF /* manifest.json in CopyFiles */,
+				888CE410B06391BD8EB7708D /* constants.xlf in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
