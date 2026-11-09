@@ -29,6 +29,111 @@ Every call first checks (or re-uses a cached check of) macOS Automation permissi
 
 **Platforms:** macOS only (Intel and Apple Silicon). There is no Windows code path in this plugin at all — every system call it makes (AppKit, ScriptingBridge, Apple Events) is Mac-only.
 
+## Manual versioning and publication
+
+**Bump version** and **Build** are independent, manual-only Actions workflows.
+Neither runs for pushes, tags, or pull requests. Bump offers `patch`, `minor`,
+and `major`; Build has **zero custom inputs**, only GitHub's built-in ref selector.
+Select the source branch for Bump, then explicitly run Build on the desired
+source commit. Bump never creates a tag, release, build, or dispatch.
+
+### Source authority and intake repair
+
+The committed Bump header at
+[`30a180bbfb18aa2a19db907ce103a31ceeed995d`](https://github.com/miyako/4d-plugin-control-quicktime-player/blob/30a180bbfb18aa2a19db907ce103a31ceeed995d/.github/workflows/bump-version.yml)
+explicitly coordinates `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION` and
+`CFBundleShortVersionString` / `CFBundleVersion`. That explicit contract governs,
+despite its fallback body updating only the first available project key.
+Rename-follow history contains no later authority change. This is not a
+marketing-only policy inferred from the fallback implementation.
+
+The six marketing assignments already agree at **1.0.3**. Migration repairs only
+the six stale current-version literals and the two display-version tokens in
+source `English.lproj/InfoPlist.strings` from 1.0.0 to that existing authority.
+It does **not** increment the intake version. `Info.plist` retains its literal
+`$(MARKETING_VERSION)` reference and absent optional `CFBundleVersion`; no key
+is inserted. Future bumps coordinate present literals and retain supported
+`$(...)` / `${...}` marketing/current references, whitespace, BOM, each individual
+CR/LF/CRLF ending, modes, and unrelated bytes.
+
+Only the project, root plist, and source localization are version inputs.
+Committed bundle destinations, archives, dependencies, manifest/schema versions,
+and 4D database/catalog/localization counters are excluded. Both readers reject
+noncanonical X.Y.Z (including leading zeroes and suffixes), drift, unknown/cyclic
+references, missing settings, and lexical duplicates, including quoted/unquoted
+same-line duplicates. Rewrites are scoped to real assignments, not comments or
+string contents.
+
+Bump pins `github.sha`, requires a clean checkout and exact selected remote
+branch, and commits only nonempty source metadata changes with the Copilot
+co-author trailer. Its required executable pre-push guard is checked before
+editing and again after the final remote read. The guard checks the advertised
+old SHA/ref, literal new SHA/HEAD, exactly one direct parent, and exactly one
+update (including rejecting an already-up-to-date same-result race). Push is
+explicit, non-force, with both `push.followTags=false` and `--no-follow-tags`.
+
+### Build gates and create-only publication
+
+Every checkout pins `github.sha`. Build reads the selected source, then checks
+exact remote tag absence and authenticated, fully paginated release lists,
+including drafts. Errors (including API 404, malformed responses, authentication,
+network, and later-page failures) stop publication. A repository-wide constant
+`release-publication` lock serializes all Build refs without cancellation.
+
+The actual pipeline is **macOS only**: Default configuration, arm64 + x86_64,
+the original 11.0 deployment override, project dependencies/frameworks, signing,
+ZIP/DMG packaging and stapling are retained. The unused Windows solution setting,
+v140 project, and committed Windows/Windows64 payloads are not converted into a
+new Windows build. No recursive Windows output discovery or artifact download
+is introduced. CopyFiles uses `dstSubfolderSpec = 7` (Resources) for manifest
+and constants; localization is the existing Resources build phase.
+
+Build removes only the exact rebuilt Mac executable, plist, English localization,
+signature, and known intermediates, preserving other resources, Windows files,
+and framework/dependency contents. It disables Xcode's implicit signing for
+the unsigned rebuild, directs the result to the actual `test/Plugins` bundle,
+requires exact `arm64` and `x86_64` lipo tokens (not arm64e/x86_64h), and checks
+built plist/localization against source, including UTF-16 and compiled binary
+localization. The original pipeline had no no-i386/exact-slice-count restriction;
+none is invented. Explicit signing and strict verification precede packaging.
+Both notary submissions must exit successfully **and** return `Accepted` JSON;
+DMG stapling must succeed.
+
+After all those gates, publication rechecks every release page and tag absence,
+POSTs a new `refs/tags/vX.Y.Z` at the selected SHA, verifies it remotely, then
+separately POSTs a new public, non-prerelease release with explicit tag, name,
+target, body and draft flags. The original empty release body is retained.
+Only the newly returned release ID receives the exact
+`Control QuickTime Player-X.Y.Z.zip` and `.dmg` assets. Existing tags/releases
+are never reused, patched, deleted, clobbered, retried, or rolled back.
+The existing secret **names** are unchanged; no secret values are involved in
+offline validation.
+
+**Manual recovery:** any failure after a mutation retains the tag, release, and
+already uploaded assets, and fails explicitly. Do not blindly rerun Build for
+that version: inspect the selected SHA, remote tag, release ID and assets first.
+Resolve partial publication manually under maintainer control, or use Bump and
+publish a new source version. The workflow never cleans up remote evidence.
+
+### Offline validation and pinned prior art
+
+Run `actionlint .github/workflows/*.yml` and
+`PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s .github/tests -v`.
+The full suite also runs in a disposable Git/bare-origin copy after a real
+guarded helper bump. Native workflow blocks execute only with a closed stub
+PATH; no native compilation, signing, notarization, 4D, Actions dispatch, or
+production publication is needed. There is deliberately no native PR workflow.
+
+The workflows, helpers, hooks and tests were inspected at these exact commits,
+not moving branch tips; paths/counts and the macOS-only policy are adapted here:
+
+- [miyako/4d-plugin-native-encoding-detection@c42ca565857f674bde5ea6ed3435c87375eda4a7](https://github.com/miyako/4d-plugin-native-encoding-detection/tree/c42ca565857f674bde5ea6ed3435c87375eda4a7/.github)
+- [miyako/4d-plugin-file-information@19848973601acfd3a2b5070230fa40cdc7e4edb2](https://github.com/miyako/4d-plugin-file-information/tree/19848973601acfd3a2b5070230fa40cdc7e4edb2/.github)
+- [miyako/4d-plugin-common-string-algorithm@2606a68201866ec9fcbb38b51462d79215f504ef](https://github.com/miyako/4d-plugin-common-string-algorithm/tree/2606a68201866ec9fcbb38b51462d79215f504ef/.github)
+- [miyako/4d-plugin-window-button@3f14facb9aaaaff0e22eeb8e07531163680c3a8a](https://github.com/miyako/4d-plugin-window-button/tree/3f14facb9aaaaff0e22eeb8e07531163680c3a8a/.github)
+- [miyako/4d-plugin-raw-picture-data@8144537fdc8dcc3d0c053dfe97aff0a8c0c3a6f9](https://github.com/miyako/4d-plugin-raw-picture-data/tree/8144537fdc8dcc3d0c053dfe97aff0a8c0c3a6f9/.github)
+- [miyako/4d-plugin-PRNG@522f62e1e9f388be0f3f226c1d4c39362dad2491](https://github.com/miyako/4d-plugin-PRNG/tree/522f62e1e9f388be0f3f226c1d4c39362dad2491/.github)
+
 ---
 
 ## Requirements & platform notes
