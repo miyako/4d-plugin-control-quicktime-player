@@ -348,7 +348,7 @@ static void getDocuments(QuickTimePlayerApplication *application, PA_ObjectRef s
     
     for(QuickTimePlayerDocument *document in documents) {
         
-        PA_Variable v = PA_CreateVariable(eVK_Unistring);
+        PA_Variable v = PA_CreateVariable(eVK_Undefined);
         
         NSString *str = document.name;
         if(str) {
