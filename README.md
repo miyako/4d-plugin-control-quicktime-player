@@ -121,8 +121,9 @@ Run `actionlint .github/workflows/*.yml` and
 `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s .github/tests -v`.
 The full suite also runs in a disposable Git/bare-origin copy after a real
 guarded helper bump. Native workflow blocks execute only with a closed stub
-PATH; no native compilation, signing, notarization, 4D, Actions dispatch, or
-production publication is needed. There is deliberately no native PR workflow.
+PATH; no signing, notarization, 4D, Actions dispatch, or production publication
+is needed. The string-ownership tests below also compile native source on macOS
+and skip on other platforms. There is deliberately no native PR workflow.
 
 The workflows, helpers, hooks and tests were inspected at these exact commits,
 not moving branch tips; paths/counts and the macOS-only policy are adapted here:
@@ -135,6 +136,65 @@ not moving branch tips; paths/counts and the macOS-only policy are adapted here:
 - [miyako/4d-plugin-PRNG@522f62e1e9f388be0f3f226c1d4c39362dad2491](https://github.com/miyako/4d-plugin-PRNG/tree/522f62e1e9f388be0f3f226c1d4c39362dad2491/.github)
 
 ---
+
+## Native string ownership
+
+The ownership audit starts at `bac6d6ff1fe96070ed9778fa8dec01174948cb09`.
+Both root and committed-bundle manifests expose only
+`QuickTime Player Execute(&L;&J):J`, dispatched by selector 1. There are no
+`&Y` array-capable parameters or first-party method callbacks. Active sources
+are the main Objective-C++ file, `support/4DPlugin-JSON.cpp`, and the bundled
+SDK; `4D Plugin API/Classes` wrappers are dormant (not in Xcode's source phase).
+The Windows project is not a supported implementation of this Mac-only command.
+
+The bundled SDK implementation labels itself `rev : v14`, while its header
+labels itself v13; neither establishes a verified upstream release. Its
+`4DPluginAPI.c` SHA-256 is
+`5bac571c5c4cafd280fa7f23d775458a23701287e8735be27d4a2190002f4e3f`.
+At the audit baseline:
+
+| API / call site | Ownership and correction |
+|---|---|
+| SDK `PA_CreateVariable`, 3920-4077; `PA_SetStringVariable`, 4254-4259 | Creating a text variable allocates an owned empty string; the setter shallowly overwrites it without disposal. Start with an undefined variable before assigning a newly owned string. |
+| Active `getDocuments`, 342-373; JSON `ob_set_s` overloads, 42-144 | Avoid the overwritten empty allocation. Final variable cleanup still releases the assigned text after the synchronous property/collection setter copies it. |
+| Dormant JSON `ob_set_a` overloads, 146-196 | Apply the same empty-overwrite correction; do not separately dispose the transferred local string alias. |
+| SDK `PA_GetObjectProperty`, 636-651; JSON getters, 438-597 | The SDK explicitly requires clearing returned variables. Active `ob_get_a` clears after copying text; dormant boolean/number getters clear after copying, including mismatches. Object/collection getters clear only mismatches: successful references are handed to the caller, which must dispose them. |
+| SDK `PA_GetStringInArray`, 4736-4755; `PA_SetStringInArray`, 4933-4948 | Getter results are borrowed; accepted insertion disposes the previous element and transfers the incoming allocation. Dormant `ARRAY_TEXT` copies input into independent C++ strings and transfers freshly created output strings without post-transfer disposal. |
+| SDK `PA_SetUnistring`, 289-299; `PA_ReturnString`, 2600-2603; `PA_SetStringField`, 3741-3754 | Content setters/returns and the explicitly non-owning field setter are distinct from shallow struct assignment. Dormant `C_TEXT` uses the content setter, not the array ownership rule. |
+
+`ob_stringify` already clears its independent command argument and owning
+returned variable on both expected and mismatched-result paths. There is no
+first-party `PA_GetPointerValue` metadata wrapper or `CPicture` implementation
+to patch. Bundled SDK internals and unrelated allocation-failure behavior are
+not rewritten. Guidance: [miyako/skills#69](https://github.com/miyako/skills/pull/69)
+and [miyako/skills#71](https://github.com/miyako/skills/pull/71).
+
+Run the narrow regression with:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s .github/tests -p test_string_ownership.py -v
+```
+
+The harness compiles the actual plugin, JSON helpers, dormant text wrappers,
+and **full, unmodified SDK**, replacing only `gCall4D` engine dispatch. Production
+Core Foundation conversions run unchanged; there is no conversion mock that
+can confuse bytes with UTF-16 units. Assertions check literal ASCII, BMP,
+surrogate-pair and empty content/lengths; owning property copies, independent
+collection storage, replacement, rejected array destinations, shrink/clear,
+nil document names, reference handoffs and balanced final cleanup. Both
+allocated-empty and null-empty host models run with ASan/UBSan. Explicit
+allocation tracking detects leaks (LeakSanitizer is disabled on macOS).
+`OWNERSHIP_SOURCE_ROOT` can point at an extracted baseline to run the same
+tests against original sources.
+
+On macOS 26.7 arm64 / Xcode 26.6, the baseline fails with 4 leaked strings per
+document-list iteration, 80 per setter scenario, and 100 owning property
+results per getter scenario; null-empty hides only the empty-overwrite leaks.
+The fixes pass all four scenarios in both models. The unsigned **Default**
+Xcode build also succeeds for arm64 and x86_64 with output outside the checkout.
+No Deployment build, signing, notarization, archives, tags, or releases are
+performed. This is host-shim evidence, not a run inside 4D or a QuickTime
+Automation integration test; x86_64 is built, not runtime-tested.
 
 ## Requirements & platform notes
 

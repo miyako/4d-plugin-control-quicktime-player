@@ -74,7 +74,9 @@ class RepositoryContractTests(unittest.TestCase):
             ["git", "-C", str(ROOT), "ls-tree", "-r", BASE], text=True,
         ).splitlines()
         allowed = {*map(str, source.SOURCE_PATHS), "README.md",
-                   ".github/workflows/bump-version.yml", ".github/workflows/release.yml"}
+                   ".github/workflows/bump-version.yml", ".github/workflows/release.yml",
+                   # Ownership fixes have executable coverage in test_string_ownership.
+                   "4DPlugin-Control-QuickTime-Player.cpp", "support/4DPlugin-JSON.cpp"}
         for entry in entries:
             metadata, name = entry.split("\t", 1)
             mode = int(metadata.split()[0], 8) & 0o777
